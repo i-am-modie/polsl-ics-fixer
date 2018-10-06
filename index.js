@@ -4,9 +4,29 @@ const fs = require('fs');
 const lineReader = require('readline').createInterface({
     input: fs.createReadStream(process.argv[2]),
 });
+const output = fs.createWriteStream('result.ics');
 
+const ISOWITHOUTSPECIALSIGNSFORMAT = 'YYYYMMDDTHHMM00[Z]';
+
+const objectToIcsEvent = (obj) => {
+    const icsArr = [];
+    const now = moment();
+    icsArr.push('BEGIN:VEVENT');
+    icsArr.push(`DTSTART:${obj.DTSTART.format(ISOWITHOUTSPECIALSIGNSFORMAT)}`);
+    icsArr.push(`DTEND:${obj.DTEND.format(ISOWITHOUTSPECIALSIGNSFORMAT)}`);
+    icsArr.push(`DTSTAMP:${now.format(ISOWITHOUTSPECIALSIGNSFORMAT)}`);
+    icsArr.push(`UID:${obj.DTSTART.format('YYYYMMDD0HHMM0')}`);
+    icsArr.push('CLASS:PUBLIC');
+    icsArr.push('SEQUENCE:0');
+    icsArr.push('STATUS:CONFIRMED');
+    icsArr.push(`SUMMARY:${obj.SUMMARY}`);
+    icsArr.push(`RRULE:FREQ=WEEKLY;INTERVAL=${obj.FREQUENCY};UNTIL=${obj.UNTIL.format(ISOWITHOUTSPECIALSIGNSFORMAT)}`);
+    icsArr.push('TRANSP:OPAQUE');
+    icsArr.push('END:VEVENT');
+    console.log(icsArr);
+    return icsArr.join('\n')+'\n';
+};
 const header = [];
-const dates = [];
 
 let actualObject = {};
 let candidate = {};
@@ -16,17 +36,15 @@ lineReader.on('line', (lineString) => {
     const line = lineString.split(':');
     if (!headerDone) {
         if (line[0] === 'BEGIN' && line[1] === 'VEVENT') {
-            headerDone = true
+            headerDone = true;
+            output.write(header.join('\n')+'\n');
         }
         else {
-            console.log('line of header:', lineString);
             header.push(lineString)
         }
     }
     else {
         switch (line[0]) {
-            case 'BEGIN':
-                break;
             case 'DTSTART':
                 candidate.DTSTART = moment(line[1], moment.ISO_8601);
                 break;
@@ -37,7 +55,7 @@ lineReader.on('line', (lineString) => {
                 candidate.SUMMARY = line[1];
                 break;
             case 'END':
-                if (candidate.SUMMARY === actualObject.SUMMARY && candidate.DTSTART.hour() === actualObject.DTSTART.hour()) {
+                if (candidate.SUMMARY === actualObject.SUMMARY && candidate.DTSTART.utc().hour() === actualObject.DTSTART.utc().hour()) {
                     if (!actualObject.FREQUENCY) {
                         actualObject.FREQUENCY= candidate.DTSTART.diff(actualObject.DTSTART, 'weeks');
                     }
@@ -45,8 +63,7 @@ lineReader.on('line', (lineString) => {
                 }
                 else {
                     if (Object.keys(actualObject).length) {
-                        console.log(actualObject);
-                        dates.push(actualObject);
+                        output.write(objectToIcsEvent(actualObject));
                     }
                     actualObject = candidate;
                 }
@@ -57,3 +74,6 @@ lineReader.on('line', (lineString) => {
         }
     }
 });
+
+
+lineReader.on('close', () => {output.write('END:VCALENDAR')});
