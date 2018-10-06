@@ -5,8 +5,10 @@
   "main": "index.js",
   "author": "Jan Dubniak<jan@dubniak.pl>",
   "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
-    "ical-date-parser": "^4.0.0",
     "moment": "^2.22.2"
   }
 }

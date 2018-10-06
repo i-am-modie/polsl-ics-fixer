@@ -23,7 +23,6 @@ const objectToIcsEvent = (obj) => {
     icsArr.push(`RRULE:FREQ=WEEKLY;INTERVAL=${obj.FREQUENCY};UNTIL=${obj.UNTIL.format(ISOWITHOUTSPECIALSIGNSFORMAT)}`);
     icsArr.push('TRANSP:OPAQUE');
     icsArr.push('END:VEVENT');
-    console.log(icsArr);
     return icsArr.join('\n')+'\n';
 };
 const header = [];
@@ -76,4 +75,7 @@ lineReader.on('line', (lineString) => {
 });
 
 
-lineReader.on('close', () => {output.write('END:VCALENDAR')});
+lineReader.on('close', () => {
+    output.write('END:VCALENDAR');
+    output.close()
+});
