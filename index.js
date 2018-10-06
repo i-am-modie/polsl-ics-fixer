@@ -1,9 +1,19 @@
 const moment = require('moment');
 const fs = require('fs');
 
-const lineReader = require('readline').createInterface({
-    input: fs.createReadStream(process.argv[2]),
+if (!process.argv[2]) {
+    throw new Error('Podaj plik ics');
+}
+
+const input = fs.createReadStream(process.argv[2]);
+input.on('error', function () {
+    throw new Error("Brak pliku");
 });
+
+const lineReader = require('readline').createInterface({
+    input
+});
+
 const output = fs.createWriteStream('result.ics');
 
 const ISOWITHOUTSPECIALSIGNSFORMAT = 'YYYYMMDDTHHMM00[Z]';
@@ -23,7 +33,7 @@ const objectToIcsEvent = (obj) => {
     icsArr.push(`RRULE:FREQ=WEEKLY;INTERVAL=${obj.FREQUENCY};UNTIL=${obj.UNTIL.format(ISOWITHOUTSPECIALSIGNSFORMAT)}`);
     icsArr.push('TRANSP:OPAQUE');
     icsArr.push('END:VEVENT');
-    return icsArr.join('\n')+'\n';
+    return icsArr.join('\n') + '\n';
 };
 const header = [];
 
@@ -31,12 +41,13 @@ let actualObject = {};
 let candidate = {};
 
 let headerDone = false;
+
 lineReader.on('line', (lineString) => {
     const line = lineString.split(':');
     if (!headerDone) {
         if (line[0] === 'BEGIN' && line[1] === 'VEVENT') {
             headerDone = true;
-            output.write(header.join('\n')+'\n');
+            output.write(header.join('\n') + '\n');
         }
         else {
             header.push(lineString)
@@ -56,7 +67,7 @@ lineReader.on('line', (lineString) => {
             case 'END':
                 if (candidate.SUMMARY === actualObject.SUMMARY && candidate.DTSTART.utc().hour() === actualObject.DTSTART.utc().hour()) {
                     if (!actualObject.FREQUENCY) {
-                        actualObject.FREQUENCY= candidate.DTSTART.diff(actualObject.DTSTART, 'weeks');
+                        actualObject.FREQUENCY = candidate.DTSTART.diff(actualObject.DTSTART, 'weeks');
                     }
                     actualObject.UNTIL = candidate.DTEND.add(1, 'day');
                 }
@@ -73,7 +84,6 @@ lineReader.on('line', (lineString) => {
         }
     }
 });
-
 
 lineReader.on('close', () => {
     output.write('END:VCALENDAR');
