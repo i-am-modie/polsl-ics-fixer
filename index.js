@@ -1,11 +1,19 @@
 const moment = require('moment');
 const fs = require('fs');
 
+const input = fs.createReadStream(process.argv[2]);
+const output = fs.createWriteStream('result.ics');
+
+let utc = false;
+
 if (!process.argv[2]) {
     throw new Error('Podaj plik ics');
 }
+if (process.argv[3] === 'utc') {
+    utc = true;
+}
 
-const input = fs.createReadStream(process.argv[2]);
+
 input.on('error', function () {
     throw new Error("Brak pliku");
 });
@@ -14,9 +22,9 @@ const lineReader = require('readline').createInterface({
     input
 });
 
-const output = fs.createWriteStream('result.ics');
 
-const ISOWITHOUTSPECIALSIGNSFORMAT = 'YYYYMMDD[T]HHmm[00Z]';
+
+const ISOWITHOUTSPECIALSIGNSFORMAT = utc ? 'YYYYMMDD[T]HHmm[00Z]' : 'YYYYMMDD[T]HHmm[00]';
 
 const objectToIcsEvent = (obj) => {
     const icsArr = [];
@@ -56,10 +64,10 @@ lineReader.on('line', (lineString) => {
     else {
         switch (line[0]) {
             case 'DTSTART':
-                candidate.DTSTART = moment(line[1], moment.ISO_8601).utc();
+                candidate.DTSTART = utc ? moment(line[1], moment.ISO_8601).utc() : moment(line[1], moment.ISO_8601);
                 break;
             case 'DTEND':
-                candidate.DTEND = moment(line[1], moment.ISO_8601).utc();
+                candidate.DTEND = utc ? moment(line[1], moment.ISO_8601).utc() : moment(line[1], moment.ISO_8601);
                 break;
             case 'SUMMARY':
                 candidate.SUMMARY = line[1];
@@ -74,8 +82,6 @@ lineReader.on('line', (lineString) => {
                 else {
                     if (Object.keys(actualObject).length) {
                         output.write(objectToIcsEvent(actualObject));
-                        console.log(actualObject);
-                        console.log(objectToIcsEvent(actualObject))
                     }
                     actualObject = candidate;
                 }
@@ -89,5 +95,6 @@ lineReader.on('line', (lineString) => {
 
 lineReader.on('close', () => {
     output.write('END:VCALENDAR');
+    console.log('Przekonwertowano!');
     output.close()
 });
