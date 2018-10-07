@@ -38,7 +38,9 @@ const objectToIcsEvent = (obj) => {
     icsArr.push('SEQUENCE:0');
     icsArr.push('STATUS:CONFIRMED');
     icsArr.push(`SUMMARY:${obj.SUMMARY}`);
-    icsArr.push(`RRULE:FREQ=WEEKLY;INTERVAL=${obj.FREQUENCY};UNTIL=${obj.UNTIL.format(ISOWITHOUTSPECIALSIGNSFORMAT)}`);
+    if(obj.FREQUENCY) {
+        icsArr.push(`RRULE:FREQ=WEEKLY;INTERVAL=${obj.FREQUENCY};UNTIL=${obj.UNTIL.format(ISOWITHOUTSPECIALSIGNSFORMAT)}`);
+    }
     icsArr.push('TRANSP:OPAQUE');
     icsArr.push('END:VEVENT');
     return icsArr.join('\n') + '\n';
@@ -75,7 +77,17 @@ lineReader.on('line', (lineString) => {
             case 'END':
                 if (candidate.SUMMARY === actualObject.SUMMARY && candidate.DTSTART.hour() === actualObject.DTSTART.hour()) {
                     if (!actualObject.FREQUENCY) {
-                        actualObject.FREQUENCY = candidate.DTSTART.diff(actualObject.DTSTART, 'weeks');
+                        const frequency = candidate.DTSTART.diff(actualObject.DTSTART, 'weeks');
+                        if(frequency<3){
+                            actualObject.FREQUENCY = frequency
+                        }
+                        else{
+                            if (Object.keys(actualObject).length) {
+                                output.write(objectToIcsEvent(actualObject));
+                            }
+                            actualObject = candidate;
+                        }
+
                     }
                     actualObject.UNTIL = candidate.DTEND.add(1, 'day');
                 }

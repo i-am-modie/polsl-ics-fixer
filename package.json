@@ -1,6 +1,6 @@
 {
   "name": "polsl-ics-fixer",
-  "version": "1.2",
+  "version": "1.2.1",
   "description": "polsl ics schedule fixer",
   "main": "index.js",
   "author": "Jan Dubniak<jan@dubniak.pl>",
