@@ -16,7 +16,7 @@ const lineReader = require('readline').createInterface({
 
 const output = fs.createWriteStream('result.ics');
 
-const ISOWITHOUTSPECIALSIGNSFORMAT = 'YYYYMMDDTHHMM00[Z]';
+const ISOWITHOUTSPECIALSIGNSFORMAT = 'YYYYMMDD[T]HHmm[00Z]';
 
 const objectToIcsEvent = (obj) => {
     const icsArr = [];
@@ -25,7 +25,7 @@ const objectToIcsEvent = (obj) => {
     icsArr.push(`DTSTART:${obj.DTSTART.format(ISOWITHOUTSPECIALSIGNSFORMAT)}`);
     icsArr.push(`DTEND:${obj.DTEND.format(ISOWITHOUTSPECIALSIGNSFORMAT)}`);
     icsArr.push(`DTSTAMP:${now.format(ISOWITHOUTSPECIALSIGNSFORMAT)}`);
-    icsArr.push(`UID:${obj.DTSTART.format('YYYYMMDD0HHMM0')}`);
+    icsArr.push(`UID:${obj.DTSTART.format('YYYYMMDD[0]HHmm[000]')}`);
     icsArr.push('CLASS:PUBLIC');
     icsArr.push('SEQUENCE:0');
     icsArr.push('STATUS:CONFIRMED');
@@ -56,16 +56,16 @@ lineReader.on('line', (lineString) => {
     else {
         switch (line[0]) {
             case 'DTSTART':
-                candidate.DTSTART = moment(line[1], moment.ISO_8601);
+                candidate.DTSTART = moment(line[1], moment.ISO_8601).utc();
                 break;
             case 'DTEND':
-                candidate.DTEND = moment(line[1], moment.ISO_8601);
+                candidate.DTEND = moment(line[1], moment.ISO_8601).utc();
                 break;
             case 'SUMMARY':
                 candidate.SUMMARY = line[1];
                 break;
             case 'END':
-                if (candidate.SUMMARY === actualObject.SUMMARY && candidate.DTSTART.utc().hour() === actualObject.DTSTART.utc().hour()) {
+                if (candidate.SUMMARY === actualObject.SUMMARY && candidate.DTSTART.hour() === actualObject.DTSTART.hour()) {
                     if (!actualObject.FREQUENCY) {
                         actualObject.FREQUENCY = candidate.DTSTART.diff(actualObject.DTSTART, 'weeks');
                     }
@@ -74,6 +74,8 @@ lineReader.on('line', (lineString) => {
                 else {
                     if (Object.keys(actualObject).length) {
                         output.write(objectToIcsEvent(actualObject));
+                        console.log(actualObject);
+                        console.log(objectToIcsEvent(actualObject))
                     }
                     actualObject = candidate;
                 }
