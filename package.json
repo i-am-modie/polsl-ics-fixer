@@ -6,9 +6,15 @@
   "author": "Jan Dubniak<jan@dubniak.pl>",
   "license": "MIT",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "format": "prettier --write **/*.js",
+    "format-watch": "onchange '**/*.js' -- prettier --write {{changed}}"
   },
   "dependencies": {
     "moment": "^2.22.2"
+  },
+  "devDependencies": {
+    "prettier": "^1.16.4",
+    "onchange": "^5.2.0"
   }
 }
