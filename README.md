@@ -16,7 +16,7 @@ yarn
 ```
 2. W folderze z projektu z konsoli uruchomić polecenie
 ```
-npm start <ścieżka do pliku ics(bezwzgledna lub wzgledna rozpoczęta './')> utc(tylko jeśli chcemy by zachować czas w utc)
-yarn start <ścieżka do pliku ics(bezwzgledna lub wzgledna rozpoczęta './')>utc(tylko jeśli chcemy by zachować czas w utc)
+npm start <ścieżka do pliku ics(bezwzgledna lub wzgledna rozpoczęta './')> <ścieżka pliku wyjścia(bezwzgledna lub wzgledna)>(opcjonalne) utc(opcjonalne)
+yarn start <ścieżka do pliku ics(bezwzgledna lub wzgledna rozpoczęta './')>  <ścieżka pliku wyjścia(bezwzgledna lub wzgledna)>(opcjonalne) utc(opcjonalne)
 ```
 3. W tym samym folderze otrzymamy plik result.ics, który jest przekonwertowanym plikiem wizytówkowym.

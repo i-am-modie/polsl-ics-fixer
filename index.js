@@ -1,17 +1,17 @@
 const moment = require('moment');
 const fs = require('fs');
 
-const input = fs.createReadStream(process.argv[2]);
-const output = fs.createWriteStream('result.ics');
-
-let utc = false;
-
 if (!process.argv[2]) {
   throw new Error('Podaj plik ics');
 }
-if (process.argv[3] === 'utc') {
-  utc = true;
-}
+
+const isOutputCustomPathGiven = process.argv[3] && process.argv[3] !== 'utc';
+const utc = process.argv[3] === 'utc' || process.argv[4] === 'utc';
+
+const input = fs.createReadStream(process.argv[2]);
+const output = fs.createWriteStream(
+  isOutputCustomPathGiven ? process.argv[3] : 'result.ics',
+);
 
 input.on('error', () => {
   throw new Error('Brak pliku');
