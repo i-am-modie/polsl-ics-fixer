@@ -1,8 +1,8 @@
 # POLSL-ICS-FIXER
-Jako że po ściagnieciu planu ze strony plan.polsl.pl w icsie jest milion wydarzeń zrobionych rekurencyjnie. Powstała potrzeba na zrobienie programu, który przekonwertuje to na ładne wizytówki używające wydarzeń powtarzających się co tydzień. Pozwoliło to zrobić z 205 niezależnych pól w kalendarzu 14(lub 28 jesli chcemy zachowac UTC)
+Jako że po ściagnieciu planu ze strony plan.polsl.pl w icsie jest ok 250(liczba zajęć w tygodniu x liczba tygodni) wynika to z braku użycia powtarzalności wydarzenia. Rozwiązaniem na to jest ten drobny program, który przekonwertuje to na ładne wizytówki używające wydarzeń powtarzających się co tydzień lub dwa. Pozwoliło to zrobić z 205 niezależnych pól w kalendarzu 14(lub 28 jesli chcemy zachowac format UTC(zmiana czasu))
 
 ## CEL
-Przy 205 wydarzeniach zmiana każdego np o 5 min lub usunięcie nieaktualnego planu z kalendarza to katorga. Przy zredukowaniu mamy tych rekordów już tylko 14 lub 28(w trybie utc), więc wystarczy to zrobić jedno lub dwukrotnie na danym wydarzeniu.
+Przy 205 wydarzeniach zmiana któregoś o 5 min lub usunięcie nieaktualnego planu z kalendarza to katorga. Przy zredukowaniu mamy tych rekordów już tylko 14 lub 28(w trybie utc), więc wystarczy to zrobić jedno lub dwukrotnie na danym wydarzeniu.
 ## WYMAGANIA
 ```
 Środowisko uruchmieniowe node.js
