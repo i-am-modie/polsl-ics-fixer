@@ -11,7 +11,7 @@
     "format-watch": "onchange '**/*.js' -- prettier --write {{changed}}"
   },
   "dependencies": {
-    "moment": "^2.22.2"
+    "moment": "^2.29.2"
   },
   "devDependencies": {
     "prettier": "^1.16.4",
